@@ -16,7 +16,7 @@
   --border:   #E8E8EB;
   --border2:  #D1D1D6;
   --accent:   #000000;
-  --blue:     #000000; /* Overriding blue to pitch black for aesthetic */
+  --blue:     #000000;
   --blue-bg:  #F0F0F0;
   --blue-bdr: #000000;
   --text:     #111111;
@@ -82,14 +82,14 @@ html, body { height:100%; width:100%; overflow:hidden; background:var(--bg); col
 }
 .brand { font-family:'Outfit', sans-serif; font-weight:800; font-size:22px; letter-spacing:-0.5px; color:var(--accent); text-transform:uppercase; }
 .brand em { font-weight:300; font-style:normal; opacity:0.5; }
-#tab-title { display:none; } /* Hidden for ultra-minimal look */
+#tab-title { display:none; } 
 
 /* CONTENT AREA - Auto-adjusts for all screens */
 #content {
   height:100%;
   overflow-y:auto; overflow-x:hidden; -webkit-overflow-scrolling:touch;
   padding-top:calc(var(--top-h) + 20px);
-  padding-bottom:140px; /* Space for floating dock */
+  padding-bottom:140px; 
   max-width:800px;
   margin:0 auto;
   background:transparent;
@@ -145,7 +145,7 @@ html, body { height:100%; width:100%; overflow:hidden; background:var(--bg); col
   color:var(--muted); text-transform:uppercase; letter-spacing:1.5px;
   margin-bottom:24px; display:flex; align-items:center; gap:0;
 }
-.card-title svg { display:none; } /* Hidden for absolute minimalism */
+.card-title svg { display:none; } 
 
 /* TYPE GRID PILLS */
 .type-grid { display:flex; flex-wrap:wrap; gap:12px; }
@@ -262,10 +262,16 @@ input[type="color"] { position:absolute; opacity:0; width:0; height:0; }
 .btn-scan.scanning { background:var(--accent); color:var(--surface); box-shadow:var(--shadow-md); }
 .btn-scan.scanning svg { animation:pulse 1.5s ease infinite; }
 @keyframes pulse { 0%,100%{opacity:1} 50%{opacity:0.4} }
-#scan-result-card { display:none; animation:fadeIn 0.4s ease; background:var(--surface2); padding:24px; border-radius:24px; margin-top:16px;}
+
+/* SCAN PREVIEW & RESULT CARD */
+#scan-result-card { display:none; animation:fadeIn 0.4s ease; background:var(--surface2); padding:30px 24px; border-radius:24px; margin-top:24px; text-align:center;}
 #scan-result-card.show { display:block; }
-.result-text { font-family:'JetBrains Mono', monospace; font-size:14px; color:var(--text); word-break:break-all; line-height:1.6; background:var(--surface); padding:20px; border-radius:16px; margin-bottom:20px; box-shadow:var(--shadow); }
-.result-type-badge { display:inline-block; background:var(--accent); border-radius:100px; padding:6px 16px; font-size:11px; font-weight:800; letter-spacing:1.5px; color:var(--surface); text-transform:uppercase; margin-bottom:16px; }
+.result-text { font-family:'JetBrains Mono', monospace; font-size:14px; color:var(--text); word-break:break-all; line-height:1.6; background:var(--surface); padding:20px; border-radius:16px; margin-bottom:24px; box-shadow:var(--shadow); text-align:left;}
+.result-type-badge { display:inline-block; background:var(--accent); border-radius:100px; padding:6px 16px; font-size:11px; font-weight:800; letter-spacing:1.5px; color:var(--surface); text-transform:uppercase; margin-bottom:20px; }
+
+.scan-preview-wrap { text-align:center; margin-bottom:24px; display:none; }
+.scan-preview-wrap.show { display:block; animation:fadeIn 0.4s ease; }
+.scan-preview-wrap img { width:160px; height:160px; object-fit:contain; border-radius:16px; border:1px solid var(--border); box-shadow:var(--shadow-md); background: white; padding: 12px;}
 
 /* UPLOAD */
 .upload-zone {
@@ -291,8 +297,9 @@ input[type="color"] { position:absolute; opacity:0; width:0; height:0; }
 .hist-info .h-type { font-size:11px; font-weight:800; letter-spacing:1px; text-transform:uppercase; color:var(--muted); margin-bottom:4px; }
 .hist-info .h-content { font-size:15px; font-weight:700; color:var(--text); white-space:nowrap; overflow:hidden; text-overflow:ellipsis; }
 .hist-info .h-time { font-size:12px; color:var(--muted); margin-top:6px; font-family:'JetBrains Mono', monospace; }
-.hist-arrow { color:var(--muted2); }
-.hist-arrow svg { width:20px; height:20px; }
+.hist-del-btn { color:var(--muted2); transition:all 0.2s; display:flex; padding:8px; border-radius:50%; }
+.hist-del-btn:hover { color:var(--error); background:rgba(255,59,48,0.1); transform:scale(1.1); }
+.hist-del-btn svg { width:20px; height:20px; }
 
 /* SETTINGS */
 .settings-row { display:flex; align-items:center; justify-content:space-between; padding:20px 0; border-bottom:1px solid var(--border); }
@@ -486,21 +493,27 @@ input[type="color"] { position:absolute; opacity:0; width:0; height:0; }
           <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M3 9V5a2 2 0 012-2h4M3 15v4a2 2 0 002 2h4M15 3h4a2 2 0 012 2v4M15 21h4a2 2 0 002-2v-4"/></svg>
           Start Scanner
         </button>
+        
+        <!-- SCANNED RESULT PREVIEW DISPLAY -->
         <div id="scan-result-card">
           <div class="result-type-badge" id="result-type-badge">Text</div>
+          <div id="scan-preview-wrap" class="scan-preview-wrap">
+            <img id="scan-preview-img" src="" alt="Scanned Preview"/>
+          </div>
           <div class="result-text" id="scan-result-text"></div>
           <div class="btn-row">
-            <button class="btn-sec" onclick="openScannedResult()">
+            <button class="btn-sec" id="scan-open-btn" onclick="openScannedResult()">
               <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M18 13v6a2 2 0 01-2 2H5a2 2 0 01-2-2V8a2 2 0 012-2h6"/><polyline points="15 3 21 3 21 9"/><line x1="10" y1="14" x2="21" y2="3"/></svg>
-              Open
+              Open Link
             </button>
             <button class="btn-sec" onclick="copyScanned()">
               <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="9" y="9" width="13" height="13" rx="2"/><path d="M5 15H4a2 2 0 01-2-2V4a2 2 0 012-2h9a2 2 0 012 2v1"/></svg>
-              Copy
+              Copy Text
             </button>
           </div>
         </div>
       </div>
+      
       <div class="card">
         <div class="card-title">
           <svg viewBox="0 0 24 24" fill="none" stroke="currentColor"><path d="M21 15v4a2 2 0 01-2 2H5a2 2 0 01-2-2v-4"/><polyline points="17 8 12 3 7 8"/><line x1="12" y1="3" x2="12" y2="15"/></svg>
@@ -522,7 +535,7 @@ input[type="color"] { position:absolute; opacity:0; width:0; height:0; }
             <svg viewBox="0 0 24 24" fill="none" stroke="currentColor"><circle cx="12" cy="12" r="10"/><polyline points="12 6 12 12 16 14"/></svg>
             History
           </div>
-          <button onclick="clearHistory()" style="background:var(--surface2);border:none;color:var(--text);font-size:12px;font-weight:800;cursor:pointer;font-family:'Outfit',sans-serif; padding:10px 20px; border-radius:100px; text-transform:uppercase; letter-spacing:1px; transition:0.3s;">Clear</button>
+          <button onclick="clearHistory()" style="background:var(--surface2);border:none;color:var(--text);font-size:12px;font-weight:800;cursor:pointer;font-family:'Outfit',sans-serif; padding:10px 20px; border-radius:100px; text-transform:uppercase; letter-spacing:1px; transition:0.3s;">Clear All</button>
         </div>
         <div id="hist-list"></div>
       </div>
@@ -559,7 +572,7 @@ input[type="color"] { position:absolute; opacity:0; width:0; height:0; }
         </div>
         <div class="settings-row">
           <div><div class="s-label">Version</div><div class="s-sub">QR Studio App</div></div>
-          <div style="font-family:'JetBrains Mono',monospace;font-size:14px;color:var(--accent);font-weight:700;">v1</div>
+          <div style="font-family:'JetBrains Mono',monospace;font-size:14px;color:var(--accent);font-weight:700;">v2.1</div>
         </div>
         <div class="settings-row">
           <div><div class="s-label">Design & Code</div><div class="s-sub">Aesthetic Edition</div></div>
@@ -744,7 +757,9 @@ async function startScanner(){
   const btn=document.getElementById('btn-scan-toggle');
   const stat=document.getElementById('scan-status');
 
-  // Verify browser support explicitly before trying
+  document.getElementById('scan-result-card').classList.remove('show');
+  lastScanResult='';
+
   if (!navigator.mediaDevices || !navigator.mediaDevices.getUserMedia) {
     stat.textContent='Camera API not supported';
     stat.className='scan-status error';
@@ -752,7 +767,6 @@ async function startScanner(){
     return;
   }
 
-  // Set explicit loading/requesting state
   stat.textContent='Requesting camera access...';
   stat.className='scan-status';
   btn.innerHTML=`<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"/><path d="M12 6v6l4 2"/></svg> Connecting...`;
@@ -761,7 +775,6 @@ async function startScanner(){
     scanStream=await navigator.mediaDevices.getUserMedia({video:{facingMode:'environment',width:{ideal:640},height:{ideal:640}}});
     video.srcObject=scanStream;
     
-    // Ensure video is properly loaded before claiming scanner is active
     video.onloadedmetadata = async () => {
       await video.play();
       scannerActive=true;
@@ -770,11 +783,9 @@ async function startScanner(){
       stat.textContent='Scanning…';
       stat.className='scan-status active';
       document.getElementById('scan-line').style.display='block';
-      lastScanResult='';
       scanQRFrame();
     };
   } catch(err) {
-    // Handling denials, permissions issues, etc.
     stat.textContent='Camera access denied';
     stat.className='scan-status error';
     showToast('Camera permission is required to scan');
@@ -790,58 +801,133 @@ function stopScanner(){
   btn.innerHTML=`<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M3 9V5a2 2 0 012-2h4M3 15v4a2 2 0 002 2h4M15 3h4a2 2 0 012 2v4M15 21h4a2 2 0 002-2v-4"/></svg> Start Scanner`;
   btn.classList.remove('scanning');
   const stat=document.getElementById('scan-status');
-  stat.textContent='Camera off · tap to start';stat.className='scan-status';
+  if(stat.textContent !== '✓ Detected!') {
+      stat.textContent='Camera off · tap to start';
+      stat.className='scan-status';
+  }
   document.getElementById('scan-line').style.display='none';
 }
 
 function scanQRFrame(){
   const video=document.getElementById('scanner-video');
   const canvas=document.getElementById('scanner-canvas');
-  if(!scannerActive||video.readyState<video.HAVE_ENOUGH_DATA){scanAnimFrame=requestAnimationFrame(scanQRFrame);return;}
-  canvas.width=video.videoWidth;canvas.height=video.videoHeight;
-  const ctx=canvas.getContext('2d');ctx.drawImage(video,0,0,canvas.width,canvas.height);
+  if(!scannerActive||video.readyState<video.HAVE_ENOUGH_DATA){
+    scanAnimFrame=requestAnimationFrame(scanQRFrame);
+    return;
+  }
+  canvas.width=video.videoWidth;
+  canvas.height=video.videoHeight;
+  const ctx=canvas.getContext('2d', { willReadFrequently: true });
+  ctx.drawImage(video,0,0,canvas.width,canvas.height);
   const imgData=ctx.getImageData(0,0,canvas.width,canvas.height);
   const code=jsQR(imgData.data,imgData.width,imgData.height,{inversionAttempts:'dontInvert'});
-  if(code&&code.data&&code.data!==lastScanResult){lastScanResult=code.data;onScanSuccess(code.data);}
+  
+  if(code && code.data && code.data!==lastScanResult){
+    lastScanResult=code.data;
+    const imgDataUrl = canvas.toDataURL('image/jpeg', 0.9);
+    onScanSuccess(code.data, imgDataUrl);
+    return; 
+  }
   scanAnimFrame=requestAnimationFrame(scanQRFrame);
 }
-function onScanSuccess(data){
+
+function onScanSuccess(data, imgDataUrl){
+  if(scannerActive) stopScanner();
+
   document.getElementById('scan-status').textContent='✓ Detected!';
   document.getElementById('scan-status').className='scan-status success';
+  
+  const type = detectResultType(data);
+  document.getElementById('result-type-badge').textContent=type;
   document.getElementById('scan-result-text').textContent=data;
-  document.getElementById('result-type-badge').textContent=detectResultType(data);
-  document.getElementById('scan-result-card').classList.add('show');
-  if(settings.haptic)navigator.vibrate&&navigator.vibrate([40,20,70]);
-  if(settings.sound)playBeep();
-  if(settings.history)saveToHistory(data,'scanned');
-  if(settings.autoopen&&data.startsWith('http'))window.open(data,'_blank');
-  showToast('QR code scanned');
+  
+  const previewWrap = document.getElementById('scan-preview-wrap');
+  const previewImg = document.getElementById('scan-preview-img');
+  
+  if(imgDataUrl) {
+    previewImg.src = imgDataUrl;
+    previewWrap.classList.add('show');
+  } else {
+    previewWrap.classList.remove('show');
+  }
+
+  const openBtn = document.getElementById('scan-open-btn');
+  if(type === 'URL' || type === 'Email' || type === 'Phone') {
+     openBtn.style.display = 'flex';
+     openBtn.innerHTML = `<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M18 13v6a2 2 0 01-2 2H5a2 2 0 01-2-2V8a2 2 0 012-2h6"/><polyline points="15 3 21 3 21 9"/><line x1="10" y1="14" x2="21" y2="3"/></svg> Open Link`;
+  } else {
+     openBtn.style.display = 'none';
+  }
+
+  const resultCard = document.getElementById('scan-result-card');
+  resultCard.classList.add('show');
+  
+  setTimeout(() => resultCard.scrollIntoView({ behavior: 'smooth', block: 'center' }), 100);
+
+  if(settings.haptic && navigator.vibrate) navigator.vibrate([40,20,70]);
+  if(settings.sound) playBeep();
+  if(settings.history) saveToHistory(data,'scanned');
+  if(settings.autoopen && data.startsWith('http')) window.open(data,'_blank');
+  
+  showToast('QR code scanned successfully');
 }
+
 function detectResultType(data){
-  if(data.startsWith('http'))return'URL';if(data.startsWith('mailto:'))return'Email';
-  if(data.startsWith('tel:'))return'Phone';if(data.startsWith('WIFI:'))return'WiFi';
-  if(data.startsWith('BEGIN:VCARD'))return'Contact';return'Text';
+  if(data.startsWith('http://') || data.startsWith('https://')) return 'URL';
+  if(data.startsWith('mailto:')) return 'Email';
+  if(data.startsWith('tel:')) return 'Phone';
+  if(data.startsWith('WIFI:')) return 'WiFi';
+  if(data.startsWith('BEGIN:VCARD')) return 'Contact';
+  return 'Text';
 }
+
 function openScannedResult(){
   const t=document.getElementById('scan-result-text').textContent;
   if(t.startsWith('http'))window.open(t,'_blank');
   else if(t.startsWith('mailto:')||t.startsWith('tel:'))window.location.href=t;
   else{copyText(t);showToast('Copied');}
 }
+
 function copyScanned(){copyText(document.getElementById('scan-result-text').textContent);showToast('Copied');}
+
 function scanFromImage(event){
-  const file=event.target.files[0];if(!file)return;
+  const file=event.target.files[0];
+  if(!file) return;
+  
+  document.getElementById('scan-result-card').classList.remove('show');
+  lastScanResult = '';
+
   const reader=new FileReader();
   reader.onload=e=>{
     const img=new Image();
     img.onload=()=>{
-      const canvas=document.createElement('canvas');canvas.width=img.width;canvas.height=img.height;
-      const ctx=canvas.getContext('2d');ctx.drawImage(img,0,0);
-      const imgData=ctx.getImageData(0,0,img.width,img.height);
-      const code=jsQR(imgData.data,imgData.width,imgData.height);
-      if(code)onScanSuccess(code.data);else showToast('No QR code found in image');
-    };img.src=e.target.result;
-  };reader.readAsDataURL(file);event.target.value='';
+      const canvas=document.createElement('canvas');
+      const MAX_SIZE = 800;
+      let w = img.width;
+      let h = img.height;
+      if (w > MAX_SIZE || h > MAX_SIZE) {
+        const r = Math.min(MAX_SIZE/w, MAX_SIZE/h);
+        w *= r; h *= r;
+      }
+      canvas.width=w; canvas.height=h;
+      const ctx=canvas.getContext('2d', { willReadFrequently: true });
+      ctx.fillStyle = '#FFFFFF';
+      ctx.fillRect(0,0,w,h);
+      ctx.drawImage(img,0,0,w,h);
+      
+      const imgData=ctx.getImageData(0,0,w,h);
+      const code=jsQR(imgData.data,imgData.width,imgData.height, { inversionAttempts: 'attemptBoth' });
+      
+      if(code){
+        onScanSuccess(code.data, e.target.result); 
+      } else {
+        showToast('No valid QR code found in image');
+      }
+    };
+    img.src=e.target.result;
+  };
+  reader.readAsDataURL(file);
+  event.target.value=''; 
 }
 
 function saveToHistory(content,type){
@@ -849,6 +935,7 @@ function saveToHistory(content,type){
   history.unshift(item);if(history.length>50)history=history.slice(0,50);
   localStorage.setItem('qr_history',JSON.stringify(history));
 }
+
 function renderHistory(){
   const list=document.getElementById('hist-list');
   if(history.length===0){
@@ -862,13 +949,16 @@ function renderHistory(){
         <div class="h-content">${item.content}</div>
         <div class="h-time">${timeAgo(item.ts)}</div>
       </div>
-      <div class="hist-arrow"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="9 18 15 12 9 6"/></svg></div>
+      <div class="hist-del-btn" onclick="deleteHistItem('${item.id}', event)" title="Delete Item">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M3 6h18M19 6v14a2 2 0 01-2 2H7a2 2 0 01-2-2V6m3 0V4a2 2 0 012-2h4a2 2 0 012 2v2M10 11v6M14 11v6"/></svg>
+      </div>
     </div>`).join('');
   history.forEach(item=>{
     const el=document.getElementById('ht-'+item.id);if(!el)return;
     try{new QRCode(el,{text:item.content,width:40,height:40,colorDark:'#000000',colorLight:'#ffffff',correctLevel:QRCode.CorrectLevel.L});}catch(e){}
   });
 }
+
 function loadHistItem(id){
   const item=history.find(h=>h.id===id);if(!item)return;
   switchTab('generate',document.getElementById('nav-generate'));
@@ -878,7 +968,17 @@ function loadHistItem(id){
   setTimeout(()=>{const inp=document.querySelector('#dynamic-fields input,#dynamic-fields textarea');if(inp){inp.value=item.content;generateQR();}},120);
   haptic();
 }
-function clearHistory(){history=[];localStorage.removeItem('qr_history');renderHistory();showToast('History cleared');}
+
+function clearHistory(){history=[];localStorage.removeItem('qr_history');renderHistory();showToast('All history cleared');}
+
+function deleteHistItem(id, event) {
+  event.stopPropagation();
+  history = history.filter(h => h.id !== id);
+  localStorage.setItem('qr_history', JSON.stringify(history));
+  renderHistory();
+  showToast('Item deleted');
+}
+
 function timeAgo(ts){const s=Math.floor((Date.now()-ts)/1000);if(s<60)return'just now';if(s<3600)return Math.floor(s/60)+'m ago';if(s<86400)return Math.floor(s/3600)+'h ago';return Math.floor(s/86400)+'d ago';}
 
 function showToast(msg){
@@ -895,4 +995,4 @@ function playBeep(){
 }
 </script>
 </body>
-            </html>
+  </html>
